@@ -1,0 +1,6 @@
+
+> air-canvas@1.0.0 build
+> tsc && vite build
+
+src/main.ts(9,27): error TS6133: 'SCENE' is declared but its value is never read.
+src/main.ts(11,1): error TS6133: 'THREE' is declared but its value is never read.
