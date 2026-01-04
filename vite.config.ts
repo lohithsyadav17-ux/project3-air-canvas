@@ -6,6 +6,19 @@ export default defineConfig({
     port: 5173
   },
   build: {
-    target: 'esnext'
+    target: 'esnext',
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three-vendor': ['three'],
+          'mediapipe-vendor': [
+            '@mediapipe/hands',
+            '@mediapipe/camera_utils',
+            '@mediapipe/drawing_utils'
+          ]
+        }
+      }
+    }
   }
 });
