@@ -507,20 +507,30 @@ class AirCanvas {
   }
 
   private async init(): Promise<void> {
+    console.log('[AirCanvas] Initializing application...');
+
     try {
+      console.log('[AirCanvas] Starting hand tracker...');
+
       // Start hand tracking
       await this.handTracker.start((landmarks) => this.onHandResults(landmarks));
+
+      console.log('[AirCanvas] Hand tracker started successfully');
 
       // Setup camera preview
       this.setupCameraPreview();
 
+      console.log('[AirCanvas] Hiding loading overlay...');
+
       // Hide loading overlay
       this.loadingOverlay.classList.add('hidden');
+
+      console.log('[AirCanvas] Application ready!');
 
       // Start animation loop
       this.animate();
     } catch (error) {
-      console.error('Failed to initialize:', error);
+      console.error('[AirCanvas] Failed to initialize:', error);
       this.showStatus('Camera access denied. Please allow camera access and refresh.');
     }
   }

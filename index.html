@@ -17,6 +17,9 @@
     as="script" crossorigin>
   <link rel="prefetch" href="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands_solution_simd_wasm_bin.js" as="script"
     crossorigin>
+
+  <!-- Load MediaPipe from CDN to avoid bundling issues -->
+  <script crossorigin src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.min.js"></script>
   <style>
     * {
       margin: 0;

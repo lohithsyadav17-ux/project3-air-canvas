@@ -1,21 +1,46 @@
-import { Hands, Results } from '@mediapipe/hands';
+// MediaPipe is loaded via CDN script tag in index.html
+// Import only for types
+import type { Hands as HandsType, Results } from '@mediapipe/hands';
 import { HandLandmarks, Point2D } from './types';
+
+// Declare global window interface
+declare global {
+  interface Window {
+    Hands: typeof HandsType;
+  }
+}
 
 export type HandResultsCallback = (landmarks: HandLandmarks | null) => void;
 
 export class HandTracker {
-  private hands: Hands;
+  private hands!: HandsType;
   private videoElement: HTMLVideoElement;
   private callback: HandResultsCallback | null = null;
   private isRunning = false;
   private animationId: number | null = null;
   private canvasWidth = 640;
   private canvasHeight = 480;
+  private initialized = false;
 
   constructor(videoElement: HTMLVideoElement) {
     this.videoElement = videoElement;
+    // MediaPipe will be initialized asynchronously in start()
+  }
 
-    this.hands = new Hands({
+  private async initializeMediaPipe(): Promise<void> {
+    if (this.initialized) return;
+
+    console.log('[HandTracker] Initializing MediaPipe Hands...');
+
+    // Wait for MediaPipe to be available from CDN script
+    while (!window.Hands) {
+      console.log('[HandTracker] Waiting for MediaPipe CDN script to load...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    console.log('[HandTracker] MediaPipe CDN script loaded, creating Hands instance...');
+
+    this.hands = new window.Hands({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       }
@@ -29,6 +54,9 @@ export class HandTracker {
     });
 
     this.hands.onResults((results) => this.onResults(results));
+
+    console.log('[HandTracker] MediaPipe Hands initialized successfully');
+    this.initialized = true;
   }
 
   setCanvasSize(width: number, height: number): void {
@@ -71,6 +99,13 @@ export class HandTracker {
     if (this.isRunning) return;
 
     try {
+      console.log('[HandTracker] Starting hand tracking...');
+
+      // Initialize MediaPipe first
+      await this.initializeMediaPipe();
+
+      console.log('[HandTracker] Requesting camera access...');
+
       // Request camera access - balance between speed and detection quality
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -81,10 +116,14 @@ export class HandTracker {
         }
       });
 
+      console.log('[HandTracker] Camera access granted, starting stream...');
+
       this.videoElement.srcObject = stream;
       await this.videoElement.play();
 
       this.isRunning = true;
+
+      console.log('[HandTracker] Hand tracking active');
 
       // Use direct requestAnimationFrame for lower latency
       const processFrame = async () => {
@@ -99,7 +138,7 @@ export class HandTracker {
 
       processFrame();
     } catch (error) {
-      console.error('Failed to start hand tracking:', error);
+      console.error('[HandTracker] Failed to start hand tracking:', error);
       throw error;
     }
   }
