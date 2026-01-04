@@ -8,6 +8,7 @@ import { Multiplayer, MultiplayerEvent } from './multiplayer';
 import { HandLandmarks, GestureState, BalloonObject, Stroke } from './types';
 import { GESTURE, TIMING } from './constants';
 import { AudioManager } from './audioManager';
+import { inject } from "@vercel/speed-insights"
 
 class AirCanvas {
   // Core components
@@ -888,4 +889,6 @@ class AirCanvas {
 // Start the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   new AirCanvas();
+  // Initialize Vercel Speed Insights
+  inject();
 });
